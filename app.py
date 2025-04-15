@@ -4,13 +4,18 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from commands.rang import handle_rang
 from settings import dev
+import os
 
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(dev.CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(dev.CHANNEL_SECRET)
 
-@app.route("/", methods=["POST"])
+@app.route('/')
+def health_check():
+    return 'healthy'
+
+@app.route("/check-rang", methods=["POST"])
 def webhook():
     signature = request.headers["X-Line-Signature"]
     body = request.get_data(as_text=True)
@@ -32,4 +37,5 @@ def handle_message(event):
         )
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)

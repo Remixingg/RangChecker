@@ -25,9 +25,6 @@ class RoomAPI:
             response.raise_for_status()
             data = response.json()
 
-            # Print for now for debugging
-            print("Room API Response:", data)
-
             return data
         except Exception as e:
             print(f"Error fetching room data: {e}")
@@ -53,12 +50,8 @@ class RoomAPI:
             # else:
             #     unavailable_rooms.append(room_name)
 
-        print("Available Rooms:")
-        for room in available_rooms:
-            print(f"- {room}")
-
-        # print("\nUnavailable Rooms:")
-        # for room in unavailable_rooms:
+        # print("Available Rooms:")
+        # for room in available_rooms:
         #     print(f"- {room}")
 
         return available_rooms
