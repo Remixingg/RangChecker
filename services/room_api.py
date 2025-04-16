@@ -31,7 +31,7 @@ class RoomAPI:
             return None
 
     def parse_available_rooms(self, data):
-        excluded_rooms = {"329", "711A", "724", "724 Meeting Room", "728"}
+        excluded_rooms = {"329", "711A", "724", "724 Meeting Room", "728", "730", "731"}
         available_rooms = []
         # unavailable_rooms = []
 
@@ -47,7 +47,6 @@ class RoomAPI:
             status_details = room.get("StatusDetails", [])
 
             is_unavailable = any(status for status in status_details)
-
             if not is_unavailable:
                 available_rooms.append(room_name)
             # else:
