@@ -27,8 +27,15 @@ def handle_rang():
     if partially_available:
         message += "\nPartially Available Rangs:\n"
         for room, shifts in partially_available.items():
-            shift_range = f"Shift {shifts[0]}–{shifts[-1]}" if len(shifts) > 1 else f"Shift {shifts[0]}"
-            message += f"- {room}: {shift_range}\n"
+            shift_bar = ""
+            for i in range(1, 7):
+                if i in shifts:
+                    shift_bar += "🟩"
+                else:
+                    shift_bar += "🟥"
+            # shift_range = f"Shift {shifts[0]}–{shifts[-1]}" if len(shifts) > 1 else f"Shift {shifts[0]}"
+            # message += f"- {room}: {shift_bar} {shift_range}\n"
+            message += f"- {room}: {shift_bar}\n"
 
     return message.strip()
 
