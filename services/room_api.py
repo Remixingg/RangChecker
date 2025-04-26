@@ -7,7 +7,7 @@ class RoomAPI:
 
     def get_available_rooms(self):
         today = get_today_date()
-        # today = "04/15/2025"
+        # today = "02/14/2025"
 
         params = {
             "startDate": today,
@@ -32,7 +32,9 @@ class RoomAPI:
 
     def parse_available_rooms(self, data):
         excluded_rooms = {"329", "711A", "724", "724 Meeting Room", "728", "730", "731"}
-        available_rooms = []
+        fully_available = []
+        partially_available = {}
+        # available_rooms = []
         # unavailable_rooms = []
 
         for room in data.get("Details", []):
@@ -46,15 +48,31 @@ class RoomAPI:
                 continue
             status_details = room.get("StatusDetails", [])
 
-            is_unavailable = any(status for status in status_details)
-            if not is_unavailable:
-                available_rooms.append(room_name)
-            # else:
-            #     unavailable_rooms.append(room_name)
+            shift_indices = [1, 3, 5, 7, 9, 11]
+            shifts = [status_details[i] if i < len(status_details) else [] for i in shift_indices]
 
-        # print("Available Rooms:")
-        # for room in available_rooms:
-        #     print(f"- {room}")
+            if all(len(shift) == 0 for shift in shifts):
+                fully_available.append(room_name)
+            else:
+                empty_shift_nums = [i+1 for i, shift in enumerate(shifts) if len(shift) == 0]
+                streaks = []
+                temp = []
 
-        return available_rooms
+                for i in range(len(empty_shift_nums)):
+                    if not temp:
+                        temp.append(empty_shift_nums[i])
+                    elif empty_shift_nums[i] == temp[-1] + 1:
+                        temp.append(empty_shift_nums[i])
+                    else:
+                        if len(temp) >= 3:
+                            streaks.append(temp)
+                        temp = [empty_shift_nums[i]]
+                if len(temp) >= 3:
+                    streaks.append(temp)
+
+                if streaks:
+                    longest_streak = max(streaks, key=len)
+                    partially_available[room_name] = longest_streak
+
+        return fully_available, partially_available
 
