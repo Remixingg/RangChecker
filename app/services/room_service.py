@@ -71,24 +71,21 @@ class RoomService:
             return None, None, None
             
         fully_available = []
-        partially_available = {}
-        calibration_info = {}
+        partially_available = []
+        room_shift_details = {}
         
         for room in rooms:
-            calib_info = room.get_calibration_info()
+            shift_status = room.get_shift_availability_status()
+            room_shift_details[room.name] = shift_status
             
             if room.is_fully_available:
                 fully_available.append(room.name)
-                if calib_info['has_calibrations']:
-                    calibration_info[room.name] = calib_info['calibration_shifts']
             else:
                 longest_streak = room.get_longest_available_streak()
                 if longest_streak:
-                    partially_available[room.name] = longest_streak
-                    if calib_info['has_calibrations']:
-                        calibration_info[room.name] = calib_info['calibration_shifts']
+                    partially_available.append(room.name)
                     
-        return fully_available, partially_available, calibration_info
+        return fully_available, partially_available, room_shift_details
 
 
 room_service = RoomService()

@@ -8,7 +8,7 @@ def generate_hello_response():
     }
 
 def generate_rang_response():
-    fully_available, partially_available, calibration_info = room_service.get_room_availability_summary()
+    fully_available, partially_available, room_shift_details = room_service.get_room_availability_summary()
     
     if fully_available is None:
         return {
@@ -23,9 +23,11 @@ def generate_rang_response():
     if fully_available:
         message += "Available Rangs:\n"
         for room in fully_available:
-            if room in calibration_info:
-                calib_shifts = calibration_info[room]
-                calib_display = ', '.join(map(str, calib_shifts))
+            shift_status = room_shift_details.get(room, [])
+            # Check if room has any calibrations
+            if 'calibration' in shift_status:
+                calib_shifts = [str(i+1) for i, status in enumerate(shift_status) if status == 'calibration']
+                calib_display = ', '.join(calib_shifts)
                 message += f"- {room} (🟪 - {calib_display})\n"
             else:
                 message += f"- {room}\n"
@@ -35,16 +37,15 @@ def generate_rang_response():
     # PARTIAL
     if partially_available:
         message += "\nPartially Available Rangs:\n"
-        for room, shifts in partially_available.items():
+        for room in partially_available:
+            shift_status = room_shift_details.get(room, [])
             shift_bar = ""
-            calib_shifts = calibration_info.get(room, [])
             
-            for i in range(1, 7):
-                if i in shifts:
-                    if i in calib_shifts:
-                        shift_bar += "🟪"
-                    else:
-                        shift_bar += "🟩"
+            for status in shift_status:
+                if status == 'available':
+                    shift_bar += "🟩"
+                elif status == 'calibration':
+                    shift_bar += "🟪"
                 else:
                     shift_bar += "🟥"
                     

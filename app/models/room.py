@@ -69,6 +69,28 @@ class Room:
             streaks.append(temp)
 
         return max(streaks, key=len) if streaks else []
+
+    def get_shift_availability_status(self):
+        shift_indices = [1, 3, 5, 7, 9, 11]
+        shift_status = []
+        
+        for i, idx in enumerate(shift_indices):
+            if idx < len(self.status_details):
+                shift_transactions = self.status_details[idx]
+                non_calib_transactions = self._get_non_calibration_transactions(shift_transactions)
+                has_calibration = any(self._is_calibration_transaction(t) for t in shift_transactions)
+                
+                if len(non_calib_transactions) == 0:
+                    if has_calibration:
+                        shift_status.append('calibration')
+                    else:
+                        shift_status.append('available')
+                else:
+                    shift_status.append('occupied')
+            else:
+                shift_status.append('available')
+                
+        return shift_status
     
     def get_calibration_info(self):
         return {
