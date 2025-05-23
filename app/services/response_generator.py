@@ -1,19 +1,22 @@
-from services.room_api import RoomAPI
-from settings import dev
-from datetime import datetime
+from ..services import room_service
+from ..utils import get_today_date
 
-room_api = RoomAPI(dev.ROOM_TRANSACTION_URL)
+def generate_hello_response():
+    return {
+        "type": "text",
+        "text": "Hello"
+    }
 
-def handle_rang():
-    rooms = room_api.get_available_rooms()
-
-    if not rooms:
-        return "Failed to fetch room transactions"
+def generate_rang_response():
+    fully_available, partially_available = room_service.get_room_availability_summary()
     
-    fully_available, partially_available = room_api.parse_available_rooms(rooms)
-
-    today = datetime.now()
-    day_date_str = today.strftime("%A, %d %B %Y")
+    if fully_available is None:
+        return {
+            "type": "text",
+            "text": "Failed to fetch room availability information."
+        }
+    
+    day_date_str = get_today_date()
     message = f"{day_date_str}\n-----------------------------\n"
 
     # FULL
@@ -33,9 +36,9 @@ def handle_rang():
                     shift_bar += "🟩"
                 else:
                     shift_bar += "🟥"
-            # shift_range = f"Shift {shifts[0]}–{shifts[-1]}" if len(shifts) > 1 else f"Shift {shifts[0]}"
-            # message += f"- {room}: {shift_bar} {shift_range}\n"
             message += f"- {room}: {shift_bar}\n"
 
-    return message.strip()
-
+    return {
+        "type": "text",
+        "text": message.strip()
+    }
