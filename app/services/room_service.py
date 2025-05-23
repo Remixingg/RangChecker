@@ -66,31 +66,29 @@ class RoomService:
         return anggrek_rooms
         
     def get_room_availability_summary(self):
-        """
-        Get a summary of room availability.
-        
-        Returns:
-            tuple: (fully_available, partially_available) where:
-                   - fully_available is a list of room names
-                   - partially_available is a dict of {room_name: available_shifts}
-                   or (None, None) if API call fails
-        """
         rooms = self.get_available_anggrek_rooms()
         if not rooms:
-            return None, None
+            return None, None, None
             
         fully_available = []
         partially_available = {}
+        calibration_info = {}
         
         for room in rooms:
+            calib_info = room.get_calibration_info()
+            
             if room.is_fully_available:
                 fully_available.append(room.name)
+                if calib_info['has_calibrations']:
+                    calibration_info[room.name] = calib_info['calibration_shifts']
             else:
                 longest_streak = room.get_longest_available_streak()
                 if longest_streak:
                     partially_available[room.name] = longest_streak
+                    if calib_info['has_calibrations']:
+                        calibration_info[room.name] = calib_info['calibration_shifts']
                     
-        return fully_available, partially_available
+        return fully_available, partially_available, calibration_info
 
 
 room_service = RoomService()

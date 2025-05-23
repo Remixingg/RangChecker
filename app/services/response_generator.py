@@ -8,7 +8,7 @@ def generate_hello_response():
     }
 
 def generate_rang_response():
-    fully_available, partially_available = room_service.get_room_availability_summary()
+    fully_available, partially_available, calibration_info = room_service.get_room_availability_summary()
     
     if fully_available is None:
         return {
@@ -22,7 +22,13 @@ def generate_rang_response():
     # FULL
     if fully_available:
         message += "Available Rangs:\n"
-        message += '\n'.join(f"- {room}" for room in fully_available)
+        for room in fully_available:
+            if room in calibration_info:
+                calib_shifts = calibration_info[room]
+                calib_display = ', '.join(map(str, calib_shifts))
+                message += f"- {room} (🟪 - {calib_display})\n"
+            else:
+                message += f"- {room}\n"
     else:
         message += "\nNo rooms are fully available at the moment."
 
@@ -31,11 +37,17 @@ def generate_rang_response():
         message += "\nPartially Available Rangs:\n"
         for room, shifts in partially_available.items():
             shift_bar = ""
+            calib_shifts = calibration_info.get(room, [])
+            
             for i in range(1, 7):
                 if i in shifts:
-                    shift_bar += "🟩"
+                    if i in calib_shifts:
+                        shift_bar += "🟪"
+                    else:
+                        shift_bar += "🟩"
                 else:
                     shift_bar += "🟥"
+                    
             message += f"- {room}: {shift_bar}\n"
 
     return {

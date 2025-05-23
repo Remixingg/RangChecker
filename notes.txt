@@ -9,6 +9,10 @@ BOT Notes:
 
 2. CALIB anggap free, tp kasih kotak ungu / keterangan aja
 
+feature/partial-room
+- 2 last shifts, empty == available,
+		 else unavailable
+
 3. Recommended system based on ML (later)
 	^
 	- based on room specs, wifi availability, double monitor capability, 

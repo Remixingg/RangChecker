@@ -24,10 +24,7 @@ def on_register(state):
     
     @line_handler.add(MessageEvent, message=TextMessage)
     def handle_text_message(event):
-        """Handle text messages from LINE."""
         user_message = event.message.text.strip()
-        
-        # Process the command
         response = process_command(user_message)
         if response:
             line_service.send_reply(event.reply_token, response)
